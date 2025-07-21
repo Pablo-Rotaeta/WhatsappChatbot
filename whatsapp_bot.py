@@ -37,33 +37,25 @@ from selenium.common.exceptions import NoSuchElementException
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+
 # ============================================================================
 # CONFIGURACIÓN DEL SISTEMA
 # ============================================================================
 
-# Nombre del canal de WhatsApp del cual se extraerán los mensajes.
-CANAL_ORIGEN = "Prueba Pablo"
-
-# Nombre del canal de WhatsApp al cual se enviarán los mensajes procesados.
-CANAL_DESTINO = "Test Pablo"
-
-# Directorio para guardar la sesión persistente de Chrome.
-RUTA_SESION_CHROME = "./whatsapp_data"
-
-# Ruta al archivo de la base de datos SQLite donde se almacenarán los mensajes.
-RUTA_DB = "./data/mensajes.db"
-
-# Configuración de la API de Google Gemini
-genai.configure(api_key="AIzaSyDvAvcTcvDUou8-1QXvQd5o_7UFV54p2G")
+CANAL_ORIGEN = os.getenv("CANAL_ORIGEN", "CanalPorDefecto")
+CANAL_DESTINO = os.getenv("CANAL_DESTINO", "DestinoPorDefecto")
+RUTA_SESION_CHROME = os.getenv("RUTA_SESION_CHROME", "./whatsapp_data")
+RUTA_DB = os.getenv("RUTA_DB", "./data/mensajes.db")
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 GEMINI_MODEL = genai.GenerativeModel("gemini-1.5-flash-8b")
-
-# Horarios programados para las diferentes tareas del bot.
-HORARIOS_SCRAPING = ["08:00", "13:00", "17:00"]  # Horarios para extraer mensajes.
-HORARIOS_ENVIO = ["08:10", "13:10", "17:10"]     # Horarios para enviar mensajes (10 minutos después).
-HORARIO_RESUMEN = "20:00"                        # Horario para enviar el resumen diario.
-
-# Flag de depuración. Si está en True, se imprimirán logs detallados en consola.
-DEBUG = True
+HORARIOS_SCRAPING = os.getenv("HORARIOS_SCRAPING", "08:00,13:00,17:00").split(",")
+HORARIOS_ENVIO = os.getenv("HORARIOS_ENVIO", "08:10,13:10,17:10").split(",")
+HORARIO_RESUMEN = os.getenv("HORARIO_RESUMEN", "20:00")
+DEBUG = os.getenv("DEBUG", "false").lower() == "true"
 
 # ============================================================================
 # MÓDULO DE BASE DE DATOS
