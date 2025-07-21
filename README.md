@@ -14,12 +14,24 @@ Un sistema automatizado que extrae mensajes de canales de WhatsApp, los analiza 
 ## Estructura del Proyecto
 
 ```
-modules/
-├── automation.py # Selenium
-├── database.py # SQLite
-├── llm_extractor.py # Gemini LLM
-├── scheduler.py # Tareas
-└── utils.py # Hashes, normalización
+whatsapp_llm_bot/
+├── whatsapp_bot.py                  ← Script principal CLI
+├── .env                             ← Variables de entorno
+├── requirements.txt                 ← Librerías necesarias
+├── README.md                        ← Documentación general
+├── prompts/
+│   └── extract_prompt.txt           ← Prompt reutilizable para LLM
+├── modules/
+│   ├── __init__.py (opcional)
+│   ├── automation.py                ← Selenium: conexión a WhatsApp
+│   ├── config.py                    ← Carga de configuración global
+│   ├── database.py                  ← Operaciones con SQLite
+│   ├── llm_extractor.py            ← Gemini / LLM parsing
+│   ├── scraper.py                   ← Scraping de mensajes
+│   ├── sender.py                    ← Envío de mensajes y resumen
+│   ├── scheduler.py                 ← Tareas automáticas programadas
+│   └── utils.py                     ← Utilidades (verificación, unicode)
+
 ```
 
 ## Configuración
