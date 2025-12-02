@@ -37,33 +37,25 @@ from selenium.common.exceptions import NoSuchElementException
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+
 # ============================================================================
 # CONFIGURACIÓN DEL SISTEMA
 # ============================================================================
 
-# Nombre del canal de WhatsApp del cual se extraerán los mensajes.
-CANAL_ORIGEN = "Prueba Pablo"
-
-# Nombre del canal de WhatsApp al cual se enviarán los mensajes procesados.
-CANAL_DESTINO = "Test Pablo"
-
-# Directorio para guardar la sesión persistente de Chrome.
-RUTA_SESION_CHROME = "./whatsapp_data"
-
-# Ruta al archivo de la base de datos SQLite donde se almacenarán los mensajes.
-RUTA_DB = "./data/mensajes.db"
-
-# Configuración de la API de Google Gemini
-genai.configure(api_key="AIzaSyDvAvcTcvDUou8-1QXvQd5o_7UFV54p2G")
+CANAL_ORIGEN = os.getenv("CANAL_ORIGEN", "CanalPorDefecto")
+CANAL_DESTINO = os.getenv("CANAL_DESTINO", "DestinoPorDefecto")
+RUTA_SESION_CHROME = os.getenv("RUTA_SESION_CHROME", "./whatsapp_data")
+RUTA_DB = os.getenv("RUTA_DB", "./data/mensajes.db")
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 GEMINI_MODEL = genai.GenerativeModel("gemini-1.5-flash-8b")
-
-# Horarios programados para las diferentes tareas del bot.
-HORARIOS_SCRAPING = ["08:00", "13:00", "17:00"]  # Horarios para extraer mensajes.
-HORARIOS_ENVIO = ["08:10", "13:10", "17:10"]     # Horarios para enviar mensajes (10 minutos después).
-HORARIO_RESUMEN = "20:00"                        # Horario para enviar el resumen diario.
-
-# Flag de depuración. Si está en True, se imprimirán logs detallados en consola.
-DEBUG = True
+HORARIOS_SCRAPING = os.getenv("HORARIOS_SCRAPING", "08:00,13:00,17:00").split(",")
+HORARIOS_ENVIO = os.getenv("HORARIOS_ENVIO", "08:10,13:10,17:10").split(",")
+HORARIO_RESUMEN = os.getenv("HORARIO_RESUMEN", "20:00")
+DEBUG = os.getenv("DEBUG", "false").lower() == "true"
 
 # ============================================================================
 # MÓDULO DE BASE DE DATOS
@@ -925,11 +917,6 @@ COMANDOS DISPONIBLES:
    Ejecuta el scraping inmediatamente
    Extrae mensajes del canal origen y los procesa con IA
 
-🔍 --scraper-loop
-   Ejecuta el scraping para casos en los que hay más de 1 mensaje nuevo inmediatamente
-   Extrae mensajes del canal origen y los procesa con IA
-
-
 📤 --send  
    Envía mensajes individuales al canal destino
    Envía cada mensaje del día por separado
@@ -967,8 +954,6 @@ REQUISITOS:
    - Ollama ejecutándose con modelo {LLAMA_MODEL}
    - WhatsApp Web configurado y logueado
    - Acceso a los canales configurados
-
-¡Recuerda mantener Ollama ejecutándose para el procesamiento con IA!
 """)
 
 def main():
@@ -1161,54 +1146,6 @@ if __name__ == "__main__":
             import traceback
             traceback.print_exc()
         exit(1)
-
-# ============================================================================
-# NOTAS ADICIONALES Y DOCUMENTACIÓN
-# ============================================================================
-
-"""
-NOTAS DE IMPLEMENTACIÓN:
-═══════════════════════════
-
-1. CONFIGURACIÓN INICIAL:
-   - Instalar dependencias: pip install selenium requests schedule
-   - Descargar ChromeDriver y agregarlo al PATH
-   - Instalar Ollama y descargar el modelo: ollama pull llama3.2
-   - Configurar WhatsApp Web en Chrome
-
-2. ESTRUCTURA DE DATOS:
-   La base de datos almacena:
-   - Texto original del mensaje
-   - Campos extraídos por IA (lugar, fecha, temática, etc.)
-   - Hash único para evitar duplicados
-   - Metadatos (fecha de procesamiento, canal origen)
-
-3. FLUJO DE TRABAJO:
-   Scraping → Procesamiento IA → Almacenamiento → Redistribución
-   
-4. SEGURIDAD:
-   - Usa hash SHA256 para detectar duplicados
-   - Mantiene sesión persistente de Chrome
-   - Manejo de errores robusto
-
-5. ESCALABILIDAD:
-   - Fácil agregar nuevos campos de extracción
-   - Configurable para múltiples canales
-   - Sistema de horarios flexible
-
-6. TROUBLESHOOTING:
-   - Si WhatsApp no carga: verificar sesión de Chrome
-   - Si LLM no responde: verificar que Ollama esté ejecutándose
-   - Si no encuentra canales: verificar nombres exactos
-   - Si hay errores de Selenium: actualizar ChromeDriver
-
-CONTRIBUCIONES:
-Para mejorar el bot, considera:
-- Agregar más campos de extracción
-- Implementar filtros de contenido
-- Agregar interfaz web
-- Mejorar el sistema de horarios
-- Agregar notificaciones de estado
 
 LICENCIA:
 Este código es de uso educativo y personal.
